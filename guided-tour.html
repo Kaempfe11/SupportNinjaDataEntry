@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SKDLA Case Workflow — Guided Tour</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --spectrum: #052030;
+    --killian: #1882C7;
+    --dental: #4ABEEE;
+    --alliance: #C3E8FA;
+    --gold: #B3A369;
+    --red: #E0625A;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --radius: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Montserrat', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+  /* Header */
+  .tour-header {
+    background: var(--spectrum);
+    padding: 32px 0;
+    text-align: center;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .tour-header h1 { color: #fff; font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+  .tour-header .subtitle { color: var(--alliance); font-size: 13px; font-weight: 400; margin-top: 4px; }
+
+  /* Progress bar */
+  .progress-bar { background: rgba(255,255,255,0.1); height: 3px; margin-top: 16px; }
+  .progress-fill { height: 3px; background: var(--dental); width: 0%; transition: width 0.4s ease; }
+
+  /* Nav */
+  .tour-nav {
+    background: #fff; border-bottom: 1px solid var(--border);
+    padding: 0 24px; display: flex; gap: 0; overflow-x: auto;
+    position: sticky; top: 89px; z-index: 99;
+  }
+  .tour-nav button {
+    font-family: 'Montserrat', sans-serif; background: none; border: none;
+    padding: 12px 16px; font-size: 12px; font-weight: 600; color: var(--text-muted);
+    cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .tour-nav button:hover { color: var(--killian); }
+  .tour-nav button.active { color: var(--killian); border-bottom-color: var(--killian); }
+
+  /* Main */
+  .tour-body { max-width: 900px; margin: 0 auto; padding: 32px 24px 80px; }
+
+  /* Section */
+  .tour-section { display: none; }
+  .tour-section.active { display: block; }
+
+  .section-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px; border-radius: 50%; background: var(--killian);
+    color: #fff; font-weight: 700; font-size: 16px; margin-bottom: 12px;
+  }
+  .section-title { font-size: 24px; font-weight: 700; color: var(--spectrum); margin-bottom: 8px; }
+  .section-intro { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.7; }
+
+  /* Cards */
+  .info-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 20px 24px; margin-bottom: 16px; transition: box-shadow 0.2s;
+  }
+  .info-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+  .info-card h3 { font-size: 15px; font-weight: 700; color: var(--spectrum); margin-bottom: 6px; }
+  .info-card p { font-size: 13px; color: var(--text); line-height: 1.7; }
+  .info-card .label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+
+  /* Team cards */
+  .team-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .team-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 20px; border-left: 4px solid var(--killian);
+  }
+  .team-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .team-card .team-tag {
+    display: inline-block; padding: 2px 8px; border-radius: 10px;
+    font-size: 10px; font-weight: 600; color: #fff; margin-bottom: 8px;
+  }
+  .team-card p { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+  .team-card ul { font-size: 12px; color: var(--text); margin-top: 8px; padding-left: 16px; }
+  .team-card ul li { margin-bottom: 4px; }
+
+  /* Flow diagram */
+  .flow-container { margin: 24px 0; }
+  .flow-step {
+    display: flex; align-items: flex-start; gap: 16px; margin-bottom: 0;
+    position: relative; padding-bottom: 24px;
+  }
+  .flow-step:last-child { padding-bottom: 0; }
+  .flow-step::before {
+    content: ''; position: absolute; left: 17px; top: 36px;
+    width: 2px; height: calc(100% - 36px); background: var(--border);
+  }
+  .flow-step:last-child::before { display: none; }
+  .flow-dot {
+    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px; color: #fff; z-index: 1;
+  }
+  .flow-content { flex: 1; padding-top: 6px; }
+  .flow-content h4 { font-size: 14px; font-weight: 700; color: var(--spectrum); margin-bottom: 2px; }
+  .flow-content p { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+
+  /* Column pills */
+  .col-pill {
+    display: inline-block; padding: 3px 10px; border-radius: 10px;
+    font-size: 11px; font-weight: 600; color: #fff; margin: 2px 4px 2px 0;
+  }
+
+  /* Highlight box */
+  .highlight {
+    background: rgba(24,130,199,0.06); border: 1px solid rgba(24,130,199,0.15);
+    border-radius: var(--radius); padding: 16px 20px; margin: 16px 0;
+  }
+  .highlight.warn {
+    background: rgba(224,98,90,0.06); border-color: rgba(224,98,90,0.15);
+  }
+  .highlight.gold {
+    background: rgba(179,163,105,0.06); border-color: rgba(179,163,105,0.15);
+  }
+  .highlight h4 { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .highlight p { font-size: 12px; line-height: 1.7; }
+
+  /* Nav buttons */
+  .nav-buttons { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border); }
+  .nav-btn {
+    font-family: 'Montserrat', sans-serif; padding: 10px 24px; border-radius: 8px;
+    font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s;
+  }
+  .nav-btn.primary { background: var(--killian); color: #fff; }
+  .nav-btn.primary:hover { background: #1571ae; }
+  .nav-btn.secondary { background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); }
+  .nav-btn.secondary:hover { background: #e2e8f0; }
+  .nav-btn:disabled { opacity: 0.4; cursor: default; }
+
+  /* Table */
+  .check-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 12px; }
+  .check-table th { text-align: left; font-weight: 600; padding: 8px 12px; background: var(--bg); border-bottom: 2px solid var(--border); }
+  .check-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+  .check-table .pass { color: #16a34a; font-weight: 600; }
+  .check-table .fail { color: var(--red); font-weight: 600; }
+
+  /* Role badges */
+  .role-badge {
+    display: inline-block; padding: 2px 8px; border-radius: 6px;
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+  }
+  .role-user { background: #e0f2fe; color: #0369a1; }
+  .role-lead { background: #fef3c7; color: #92400e; }
+  .role-admin { background: #ede9fe; color: #6d28d9; }
+
+  @media (max-width: 640px) {
+    .team-grid { grid-template-columns: 1fr; }
+    .tour-nav { padding: 0 12px; }
+    .tour-nav button { padding: 10px 12px; font-size: 11px; }
+    .tour-body { padding: 20px 16px 60px; }
+    .section-title { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="tour-header">
+  <h1>SKDLA Case Workflow</h1>
+  <div class="subtitle">Guided Tour for New Team Members</div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<div class="tour-nav" id="tourNav">
+  <button class="active" onclick="goTo(0)">Welcome</button>
+  <button onclick="goTo(1)">Teams & Roles</button>
+  <button onclick="goTo(2)">PDF Ingestion</button>
+  <button onclick="goTo(3)">Level 1 Workflow</button>
+  <button onclick="goTo(4)">Level 2 & Routing</button>
+  <button onclick="goTo(5)">Specialty Teams</button>
+  <button onclick="goTo(6)">QC Engine</button>
+  <button onclick="goTo(7)">Attention & Verified</button>
+  <button onclick="goTo(8)">Views & Filters</button>
+  <button onclick="goTo(9)">Admin Tools</button>
+</div>
+
+<div class="tour-body">
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 0: WELCOME -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="tour-section active" id="section-0">
+  <div class="section-num">1</div>
+  <div class="section-title">Welcome to the Case Workflow</div>
+  <div class="section-intro">
+    This app manages the full lifecycle of dental lab RX prescriptions — from the moment a PDF scan arrives to the point it's verified against the ABS production system and assigned a PAN number. Every case flows through a structured pipeline with built-in quality checks, team routing, and automated validation.
+  </div>
+
+  <div class="info-card">
+    <h3>What This App Does</h3>
+    <p>Dental offices send prescriptions (RX PDFs) via scanning portals. This app ingests those PDFs, extracts patient and case data, assigns them to team members for data entry into ABS, then automatically validates the entered data against ABS records. Cases that pass QC move to Verified status. Cases with discrepancies get flagged for review.</p>
+  </div>
+
+  <div class="info-card">
+    <h3>The Big Picture</h3>
+    <p>The workflow has three phases:</p>
+    <p style="margin-top:8px"><strong>1. PDF Ingestion Engine</strong> — PDFs are scanned, data is extracted, and cases enter the Available queue.</p>
+    <p><strong>2. Data Entry &amp; LMS</strong> — Team members pick up cases, enter them into the Lab Management System (LMS), and submit for QC.</p>
+    <p><strong>3. Validation</strong> — The QC engine compares RX data against LMS records and either verifies the case or flags discrepancies for review.</p>
+  </div>
+
+  <!-- Process Flow Chart -->
+  <div class="info-card" style="padding:16px;overflow-x:auto">
+    <h3 style="margin-bottom:12px">Process Flow</h3>
+    <svg viewBox="0 0 900 430" xmlns="http://www.w3.org/2000/svg" style="width:100%;min-width:700px">
+      <style>
+        .pf-title { font-size: 15px; font-weight: 700; fill: #052030; font-family: 'Montserrat', sans-serif; }
+        .pf-box { font-size: 10px; font-weight: 600; fill: #fff; font-family: 'Montserrat', sans-serif; }
+        .pf-sub { font-size: 7.5px; fill: rgba(255,255,255,0.8); font-family: 'Montserrat', sans-serif; }
+        .pf-conn { fill: none; stroke: #90a4ae; stroke-width: 1.5; }
+        .pf-cd { fill: none; stroke: #90a4ae; stroke-width: 1.2; stroke-dasharray: 4,3; }
+        .pf-arr { fill: #90a4ae; }
+        .pf-br { font-size: 7.5px; font-weight: 600; fill: #5a6f80; font-family: 'Montserrat', sans-serif; }
+        .pf-phase { font-size: 8px; font-weight: 700; fill: #B3A369; letter-spacing: 1px; font-family: 'Montserrat', sans-serif; }
+        .pf-dl { font-size: 8.5px; font-weight: 600; fill: #fff; font-family: 'Montserrat', sans-serif; }
+        .pf-leg { font-size: 8.5px; fill: #5a6f80; font-family: 'Montserrat', sans-serif; }
+      </style>
+      <line x1="0" y1="12" x2="900" y2="12" stroke="#e2e8f0"/>
+      <rect x="12" y="16" width="200" height="16" rx="3" fill="#f3f6f9"/>
+      <text x="112" y="27" text-anchor="middle" class="pf-phase">PDF INGESTION ENGINE</text>
+      <rect x="228" y="16" width="360" height="16" rx="3" fill="#f3f6f9"/>
+      <text x="408" y="27" text-anchor="middle" class="pf-phase">DATA ENTRY &amp; LMS</text>
+      <rect x="604" y="16" width="284" height="16" rx="3" fill="#f3f6f9"/>
+      <text x="746" y="27" text-anchor="middle" class="pf-phase">VALIDATION</text>
+
+      <!-- Row 1 -->
+      <rect x="20" y="54" width="95" height="38" rx="5" fill="#052030"/>
+      <text x="67" y="71" text-anchor="middle" class="pf-box">PDF Arrives</text>
+      <text x="67" y="82" text-anchor="middle" class="pf-sub">SharePoint</text>
+      <line x1="115" y1="73" x2="133" y2="73" class="pf-conn"/><polygon points="133,69 141,73 133,77" class="pf-arr"/>
+      <rect x="143" y="54" width="100" height="38" rx="5" fill="#1882C7"/>
+      <text x="193" y="71" text-anchor="middle" class="pf-box">Process Scans</text>
+      <text x="193" y="82" text-anchor="middle" class="pf-sub">Extract RX data</text>
+      <line x1="243" y1="73" x2="261" y2="73" class="pf-conn"/><polygon points="261,69 269,73 261,77" class="pf-arr"/>
+      <polygon points="315,51 360,73 315,95 270,73" fill="#B3A369"/>
+      <text x="315" y="71" text-anchor="middle" class="pf-dl">Match?</text>
+      <line x1="315" y1="95" x2="315" y2="138" class="pf-cd"/><polygon points="311,138 315,146 319,138" class="pf-arr"/>
+      <text x="325" y="121" class="pf-br">No</text>
+      <line x1="360" y1="73" x2="385" y2="73" class="pf-conn"/><polygon points="385,69 393,73 385,77" class="pf-arr"/>
+      <text x="373" y="67" class="pf-br">Yes</text>
+      <rect x="395" y="54" width="70" height="38" rx="5" fill="#1882C7"/>
+      <text x="430" y="76" text-anchor="middle" class="pf-box">Available</text>
+      <line x1="465" y1="73" x2="483" y2="73" class="pf-conn"/><polygon points="483,69 491,73 483,77" class="pf-arr"/>
+      <rect x="493" y="54" width="95" height="38" rx="5" fill="#e07830"/>
+      <text x="540" y="71" text-anchor="middle" class="pf-box">L1 Assign</text>
+      <text x="540" y="82" text-anchor="middle" class="pf-sub">Support Ninja</text>
+      <line x1="588" y1="73" x2="606" y2="73" class="pf-conn"/><polygon points="606,69 614,73 606,77" class="pf-arr"/>
+      <polygon points="658,51 700,73 658,95 616,73" fill="#B3A369"/>
+      <text x="658" y="71" text-anchor="middle" class="pf-dl">Escalate?</text>
+      <line x1="700" y1="73" x2="725" y2="73" class="pf-conn"/><polygon points="725,69 733,73 725,77" class="pf-arr"/>
+      <text x="713" y="67" class="pf-br">No</text>
+      <rect x="735" y="54" width="95" height="38" rx="5" fill="#1a8a4a"/>
+      <text x="782" y="71" text-anchor="middle" class="pf-box">Enter into LMS</text>
+      <text x="782" y="82" text-anchor="middle" class="pf-sub">Create case</text>
+      <line x1="830" y1="73" x2="860" y2="73" class="pf-conn"/>
+      <line x1="860" y1="73" x2="860" y2="223" class="pf-conn"/>
+      <line x1="860" y1="223" x2="620" y2="223" class="pf-conn"/><polygon points="620,219 612,223 620,227" class="pf-arr"/>
+      <text x="868" y="142" class="pf-br" style="font-size:7px">Submit</text>
+      <line x1="658" y1="95" x2="658" y2="138" class="pf-conn"/><polygon points="654,138 658,146 662,138" class="pf-arr"/>
+      <text x="668" y="121" class="pf-br">Yes</text>
+
+      <!-- Row 2: Route -->
+      <rect x="70" y="146" width="110" height="36" rx="5" fill="#0891b2"/>
+      <text x="125" y="164" text-anchor="middle" class="pf-box">Onboarding</text>
+      <text x="125" y="174" text-anchor="middle" class="pf-sub">New account</text>
+      <path d="M180,164 L210,164 L210,138 L430,138 L430,92" class="pf-cd"/>
+      <polygon points="426,96 430,88 434,96" class="pf-arr"/>
+      <text x="330" y="132" class="pf-br" style="font-size:6.5px">Back to Available</text>
+      <line x1="315" y1="146" x2="180" y2="164" class="pf-cd"/>
+      <rect x="250" y="146" width="80" height="36" rx="5" fill="#4ABEEE"/>
+      <text x="290" y="168" text-anchor="middle" class="pf-box">AOX</text>
+      <rect x="350" y="146" width="100" height="36" rx="5" fill="#be185d"/>
+      <text x="400" y="168" text-anchor="middle" class="pf-box">Removables</text>
+      <rect x="598" y="146" width="120" height="36" rx="5" fill="#6a5acd"/>
+      <text x="658" y="164" text-anchor="middle" class="pf-box">L2 Review &amp; Route</text>
+      <line x1="598" y1="164" x2="450" y2="164" class="pf-conn"/><polygon points="450,160 442,164 450,168" class="pf-arr"/>
+      <text x="525" y="158" class="pf-br">Route</text>
+      <line x1="718" y1="164" x2="745" y2="164" class="pf-conn"/><polygon points="745,160 753,164 745,168" class="pf-arr"/>
+      <rect x="755" y="146" width="95" height="36" rx="5" fill="#1a8a4a"/>
+      <text x="802" y="164" text-anchor="middle" class="pf-box">Enter into LMS</text>
+      <text x="802" y="174" text-anchor="middle" class="pf-sub">Create case</text>
+      <line x1="850" y1="164" x2="875" y2="164" class="pf-conn"/>
+      <line x1="875" y1="164" x2="875" y2="223" class="pf-conn"/>
+      <line x1="875" y1="223" x2="620" y2="223" class="pf-conn"/>
+      <line x1="290" y1="182" x2="290" y2="198" class="pf-cd"/>
+      <line x1="290" y1="198" x2="580" y2="198" class="pf-cd"/>
+      <line x1="580" y1="198" x2="580" y2="223" class="pf-cd"/>
+      <line x1="400" y1="182" x2="400" y2="198" class="pf-cd"/>
+      <text x="435" y="194" class="pf-br" style="font-size:6.5px">Complete → QC</text>
+
+      <!-- Row 3: Validation -->
+      <rect x="505" y="211" width="105" height="38" rx="5" fill="#B3A369"/>
+      <text x="557" y="228" text-anchor="middle" class="pf-box">QC Check</text>
+      <text x="557" y="239" text-anchor="middle" class="pf-sub">RX vs ABS</text>
+      <line x1="557" y1="249" x2="557" y2="266" class="pf-conn"/><polygon points="553,266 557,274 561,266" class="pf-arr"/>
+      <polygon points="557,276 610,298 557,320 504,298" fill="#B3A369"/>
+      <text x="557" y="301" text-anchor="middle" class="pf-dl">Pass?</text>
+      <line x1="504" y1="298" x2="440" y2="298" class="pf-conn"/><polygon points="440,294 432,298 440,302" class="pf-arr"/>
+      <text x="472" y="292" class="pf-br">No</text>
+      <rect x="310" y="280" width="120" height="38" rx="5" fill="#E0625A"/>
+      <text x="370" y="297" text-anchor="middle" class="pf-box">Needs Attention</text>
+      <text x="370" y="308" text-anchor="middle" class="pf-sub">Review &amp; fix</text>
+      <!-- Re-submit from TOP of Needs Attention -->
+      <path d="M370,280 L370,264 L505,264 L505,230 L505,230" class="pf-cd"/>
+      <polygon points="501,234 505,226 509,234" class="pf-arr"/>
+      <text x="438" y="260" class="pf-br" style="font-size:6.5px">Re-submit</text>
+      <line x1="610" y1="298" x2="650" y2="298" class="pf-conn"/><polygon points="650,294 658,298 650,302" class="pf-arr"/>
+      <text x="630" y="292" class="pf-br">Yes</text>
+      <rect x="660" y="280" width="90" height="38" rx="5" fill="#B3A369"/>
+      <text x="705" y="297" text-anchor="middle" class="pf-box">Verified</text>
+      <text x="705" y="308" text-anchor="middle" class="pf-sub">Needs PAN</text>
+      <line x1="750" y1="298" x2="770" y2="298" class="pf-conn"/><polygon points="770,294 778,298 770,302" class="pf-arr"/>
+      <rect x="780" y="280" width="100" height="38" rx="5" fill="#1a8a4a"/>
+      <text x="830" y="297" text-anchor="middle" class="pf-box">PAN Assigned</text>
+      <text x="830" y="308" text-anchor="middle" class="pf-sub">Done</text>
+
+      <!-- Legend -->
+      <rect x="40" y="360" width="820" height="28" rx="4" fill="#f3f6f9" stroke="#e2e8f0"/>
+      <circle cx="62" cy="374" r="5" fill="#052030"/><text x="72" y="378" class="pf-leg">Ingest</text>
+      <circle cx="115" cy="374" r="5" fill="#1882C7"/><text x="125" y="378" class="pf-leg">Process</text>
+      <circle cx="178" cy="374" r="5" fill="#e07830"/><text x="188" y="378" class="pf-leg">L1</text>
+      <circle cx="212" cy="374" r="5" fill="#6a5acd"/><text x="222" y="378" class="pf-leg">L2</text>
+      <circle cx="247" cy="374" r="5" fill="#1a8a4a"/><text x="257" y="378" class="pf-leg">Enter LMS</text>
+      <circle cx="320" cy="374" r="5" fill="#0891b2"/><text x="330" y="378" class="pf-leg">Onboarding</text>
+      <circle cx="406" cy="374" r="5" fill="#4ABEEE"/><text x="416" y="378" class="pf-leg">AOX</text>
+      <circle cx="448" cy="374" r="5" fill="#be185d"/><text x="458" y="378" class="pf-leg">Removables</text>
+      <circle cx="530" cy="374" r="5" fill="#B3A369"/><text x="540" y="378" class="pf-leg">QC</text>
+      <circle cx="565" cy="374" r="5" fill="#E0625A"/><text x="575" y="378" class="pf-leg">Attention</text>
+    </svg>
+  </div>
+
+  <!-- Swim Lane Diagram -->
+  <div class="info-card" style="padding:16px;overflow-x:auto">
+    <h3 style="margin-bottom:12px">Swim Lane View — Who Owns Each Step</h3>
+    <svg viewBox="0 0 940 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;min-width:700px">
+      <style>
+        .sl-ll { font-size: 9.5px; font-weight: 700; fill: #fff; writing-mode: tb; letter-spacing: 0.5px; font-family: 'Montserrat', sans-serif; }
+        .sl-box { font-size: 9.5px; font-weight: 600; fill: #fff; font-family: 'Montserrat', sans-serif; }
+        .sl-sub { font-size: 7px; fill: rgba(255,255,255,0.8); font-family: 'Montserrat', sans-serif; }
+        .sl-c { fill: none; stroke: #78909c; stroke-width: 1.5; }
+        .sl-cd { fill: none; stroke: #78909c; stroke-width: 1.2; stroke-dasharray: 4,3; }
+        .sl-a { fill: #78909c; }
+        .sl-br { font-size: 7px; font-weight: 700; fill: #052030; font-family: 'Montserrat', sans-serif; }
+        .sl-dl { font-size: 8px; font-weight: 600; fill: #fff; font-family: 'Montserrat', sans-serif; }
+      </style>
+      <!-- Lanes -->
+      <rect x="0" y="0" width="54" height="80" fill="#052030"/>
+      <text x="27" y="32" text-anchor="middle" class="sl-ll" style="font-size:8px">PDF Ingestion</text>
+      <text x="27" y="56" text-anchor="middle" class="sl-ll" style="font-size:8px">Engine</text>
+      <rect x="54" y="0" width="886" height="80" fill="rgba(5,32,48,0.02)"/>
+      <line x1="54" y1="80" x2="940" y2="80" stroke="#d0dae4"/>
+      <rect x="0" y="80" width="54" height="80" fill="#e07830"/>
+      <text x="27" y="126" text-anchor="middle" class="sl-ll">L1 · SN</text>
+      <rect x="54" y="80" width="886" height="80" fill="rgba(5,32,48,0.05)"/>
+      <line x1="54" y1="160" x2="940" y2="160" stroke="#d0dae4"/>
+      <rect x="0" y="160" width="54" height="80" fill="#6a5acd"/>
+      <text x="27" y="206" text-anchor="middle" class="sl-ll">L2 · OC</text>
+      <rect x="54" y="160" width="886" height="80" fill="rgba(5,32,48,0.02)"/>
+      <line x1="54" y1="240" x2="940" y2="240" stroke="#d0dae4"/>
+      <rect x="0" y="240" width="54" height="70" fill="#0891b2"/>
+      <text x="27" y="280" text-anchor="middle" class="sl-ll">Route</text>
+      <rect x="54" y="240" width="886" height="70" fill="rgba(5,32,48,0.05)"/>
+      <line x1="54" y1="310" x2="940" y2="310" stroke="#d0dae4"/>
+      <rect x="0" y="310" width="54" height="80" fill="#B3A369"/>
+      <text x="27" y="356" text-anchor="middle" class="sl-ll">QC</text>
+      <rect x="54" y="310" width="886" height="80" fill="rgba(5,32,48,0.02)"/>
+      <line x1="54" y1="390" x2="940" y2="390" stroke="#d0dae4"/>
+      <rect x="0" y="390" width="54" height="60" fill="#1a8a4a"/>
+      <text x="27" y="426" text-anchor="middle" class="sl-ll">Output</text>
+      <rect x="54" y="390" width="886" height="60" fill="rgba(5,32,48,0.05)"/>
+
+      <!-- Lane 0 content -->
+      <rect x="72" y="22" width="95" height="36" rx="5" fill="#052030"/>
+      <text x="119" y="40" text-anchor="middle" class="sl-box">PDF Arrives</text>
+      <text x="119" y="50" text-anchor="middle" class="sl-sub">SharePoint</text>
+      <line x1="167" y1="40" x2="185" y2="40" class="sl-c"/><polygon points="185,36 193,40 185,44" class="sl-a"/>
+      <rect x="195" y="22" width="105" height="36" rx="5" fill="#1882C7"/>
+      <text x="247" y="40" text-anchor="middle" class="sl-box">Process Scans</text>
+      <text x="247" y="50" text-anchor="middle" class="sl-sub">Extract RX data</text>
+      <line x1="300" y1="40" x2="318" y2="40" class="sl-c"/><polygon points="318,36 326,40 318,44" class="sl-a"/>
+      <rect x="328" y="22" width="95" height="36" rx="5" fill="#1882C7"/>
+      <text x="375" y="40" text-anchor="middle" class="sl-box">Triage</text>
+      <text x="375" y="50" text-anchor="middle" class="sl-sub">Match doctor/office</text>
+      <line x1="423" y1="40" x2="455" y2="40" class="sl-c"/>
+      <line x1="455" y1="40" x2="455" y2="102" class="sl-c"/>
+      <polygon points="451,102 455,110 459,102" class="sl-a"/>
+      <text x="463" y="64" class="sl-br">Match</text>
+      <line x1="375" y1="58" x2="375" y2="104" class="sl-cd"/>
+      <line x1="375" y1="104" x2="120" y2="104" class="sl-cd"/>
+      <line x1="120" y1="104" x2="120" y2="250" class="sl-cd"/>
+      <polygon points="116,250 120,258 124,250" class="sl-a"/>
+      <text x="248" y="100" class="sl-br">No match</text>
+
+      <!-- Lane 1 -->
+      <rect x="430" y="104" width="50" height="32" rx="5" fill="#1882C7"/>
+      <text x="455" y="124" text-anchor="middle" class="sl-box" style="font-size:8.5px">Available</text>
+      <line x1="480" y1="120" x2="498" y2="120" class="sl-c"/><polygon points="498,116 506,120 498,124" class="sl-a"/>
+      <rect x="508" y="104" width="90" height="32" rx="5" fill="#e07830"/>
+      <text x="553" y="122" text-anchor="middle" class="sl-box">L1 Assign</text>
+      <line x1="598" y1="120" x2="616" y2="120" class="sl-c"/><polygon points="616,116 624,120 616,124" class="sl-a"/>
+      <polygon points="665,102 704,120 665,138 626,120" fill="#B3A369"/>
+      <text x="665" y="119" text-anchor="middle" class="sl-dl">Escalate?</text>
+      <line x1="704" y1="120" x2="726" y2="120" class="sl-c"/><polygon points="726,116 734,120 726,124" class="sl-a"/>
+      <text x="716" y="114" class="sl-br">No</text>
+      <rect x="736" y="104" width="95" height="32" rx="5" fill="#1a8a4a"/>
+      <text x="783" y="122" text-anchor="middle" class="sl-box">Enter into LMS</text>
+      <line x1="831" y1="120" x2="855" y2="120" class="sl-c"/>
+      <line x1="855" y1="120" x2="855" y2="334" class="sl-c"/>
+      <polygon points="851,334 855,342 859,334" class="sl-a"/>
+      <text x="863" y="224" class="sl-br" style="font-size:6.5px">Submit</text>
+      <line x1="665" y1="138" x2="665" y2="180" class="sl-c"/>
+      <polygon points="661,180 665,188 669,180" class="sl-a"/>
+      <text x="675" y="162" class="sl-br">Yes</text>
+
+      <!-- Lane 2 -->
+      <rect x="610" y="182" width="110" height="32" rx="5" fill="#6a5acd"/>
+      <text x="665" y="201" text-anchor="middle" class="sl-box">L2 Review</text>
+      <line x1="610" y1="198" x2="560" y2="198" class="sl-c"/>
+      <line x1="560" y1="198" x2="560" y2="254" class="sl-c"/>
+      <polygon points="556,254 560,262 564,254" class="sl-a"/>
+      <text x="568" y="229" class="sl-br">Route</text>
+      <line x1="720" y1="198" x2="742" y2="198" class="sl-c"/><polygon points="742,194 750,198 742,202" class="sl-a"/>
+      <rect x="752" y="182" width="95" height="32" rx="5" fill="#1a8a4a"/>
+      <text x="799" y="201" text-anchor="middle" class="sl-box">Enter into LMS</text>
+      <line x1="847" y1="198" x2="865" y2="198" class="sl-c"/>
+      <line x1="865" y1="198" x2="865" y2="334" class="sl-c"/>
+      <polygon points="861,334 865,342 869,334" class="sl-a"/>
+
+      <!-- Lane 3: Route -->
+      <rect x="72" y="254" width="100" height="32" rx="5" fill="#0891b2"/>
+      <text x="122" y="272" text-anchor="middle" class="sl-box">Onboarding</text>
+      <path d="M172,270 L200,270 L200,136 L430,136" class="sl-cd"/>
+      <polygon points="430,132 438,136 430,140" class="sl-a"/>
+      <text x="210" y="204" class="sl-br" style="font-size:6px">Back to Available</text>
+      <rect x="220" y="254" width="80" height="32" rx="5" fill="#4ABEEE"/>
+      <text x="260" y="274" text-anchor="middle" class="sl-box">AOX</text>
+      <rect x="320" y="254" width="100" height="32" rx="5" fill="#be185d"/>
+      <text x="370" y="274" text-anchor="middle" class="sl-box">Removables</text>
+      <line x1="260" y1="286" x2="260" y2="300" class="sl-cd"/>
+      <line x1="260" y1="300" x2="580" y2="300" class="sl-cd"/>
+      <line x1="580" y1="300" x2="580" y2="342" class="sl-cd"/>
+      <polygon points="576,342 580,350 584,342" class="sl-a"/>
+      <line x1="370" y1="286" x2="370" y2="300" class="sl-cd"/>
+      <text x="420" y="296" class="sl-br" style="font-size:6px">Complete → QC</text>
+
+      <!-- Lane 4: QC -->
+      <rect x="620" y="332" width="100" height="36" rx="5" fill="#B3A369"/>
+      <text x="670" y="350" text-anchor="middle" class="sl-box">QC Check</text>
+      <text x="670" y="360" text-anchor="middle" class="sl-sub">RX vs ABS</text>
+      <line x1="720" y1="350" x2="740" y2="350" class="sl-c"/><polygon points="740,346 748,350 740,354" class="sl-a"/>
+      <polygon points="793,330 836,350 793,370 750,350" fill="#B3A369"/>
+      <text x="793" y="353" text-anchor="middle" class="sl-dl">Pass?</text>
+      <line x1="793" y1="370" x2="793" y2="382" class="sl-c"/>
+      <line x1="793" y1="382" x2="460" y2="382" class="sl-c"/>
+      <line x1="460" y1="382" x2="460" y2="360" class="sl-c"/>
+      <polygon points="456,360 460,352 464,360" class="sl-a"/>
+      <text x="630" y="378" class="sl-br">No</text>
+      <rect x="380" y="334" width="120" height="34" rx="5" fill="#E0625A"/>
+      <text x="440" y="352" text-anchor="middle" class="sl-box">Needs Attention</text>
+      <text x="440" y="361" text-anchor="middle" class="sl-sub">Review &amp; fix</text>
+      <!-- Re-submit from TOP -->
+      <path d="M440,334 L440,320 L670,320 L670,332" class="sl-cd"/>
+      <polygon points="666,332 670,340 674,332" class="sl-a"/>
+      <text x="555" y="317" text-anchor="middle" class="sl-br" style="font-size:6.5px">Re-submit</text>
+      <line x1="836" y1="350" x2="870" y2="350" class="sl-c"/>
+      <text x="853" y="344" class="sl-br">Yes</text>
+      <line x1="870" y1="350" x2="870" y2="404" class="sl-c"/>
+      <polygon points="866,404 870,412 874,404" class="sl-a"/>
+
+      <!-- Lane 5: Output -->
+      <rect x="790" y="412" width="80" height="28" rx="5" fill="#B3A369"/>
+      <text x="830" y="429" text-anchor="middle" class="sl-box" style="font-size:8.5px">Needs PAN</text>
+      <line x1="870" y1="426" x2="888" y2="426" class="sl-c"/><polygon points="888,422 896,426 888,430" class="sl-a"/>
+      <rect x="898" y="412" width="35" height="28" rx="5" fill="#1a8a4a"/>
+      <text x="915" y="429" text-anchor="middle" class="sl-box" style="font-size:8px">PAN</text>
+    </svg>
+  </div>
+
+  <div class="info-card">
+    <h3>The Kanban Board</h3>
+    <p>The main view is a Kanban board with columns representing each stage. Cases flow left to right through the pipeline. Here are all the columns:</p>
+    <div style="margin-top:12px">
+      <span class="col-pill" style="background:#1882C7">Available</span>
+      <span class="col-pill" style="background:#5a6f80">Hold</span>
+      <span class="col-pill" style="background:#e07830">Level 1</span>
+      <span class="col-pill" style="background:#6a5acd">Level 2</span>
+      <span class="col-pill" style="background:#E0625A">Needs Attention</span>
+      <span class="col-pill" style="background:#B3A369">Pending QC</span>
+      <span class="col-pill" style="background:#B3A369">Verified / Needs PAN</span>
+      <span class="col-pill" style="background:#1a8a4a">Verified / PAN Assigned</span>
+    </div>
+    <div style="margin-top:8px">
+      <span class="col-pill" style="background:#0891b2">Onboarding</span>
+      <span class="col-pill" style="background:#4ABEEE">AOX</span>
+      <span class="col-pill" style="background:#be185d">Removables</span>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <div></div>
+    <button class="nav-btn primary" onclick="goTo(1)">Next: Teams & Roles &rarr;</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 1: TEAMS & ROLES -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="tour-section" id="section-1">
+  <div class="section-num">2</div>
+  <div class="section-title">Teams & Roles</div>
+  <div class="section-intro">
+    The app uses a team-based structure. Each person belongs to a team and has a role that determines what they can see and do. Cases are assigned to teams, and team members pull work from their team's queue.
+  </div>
+
+  <div class="info-card">
+    <h3>Role Levels</h3>
+    <p style="margin-top:8px">
+      <span class="role-badge role-user">User</span> — Can view their team's queue, pick up cases, and complete/route them. Sees only their assigned work in the focused user view.<br><br>
+      <span class="role-badge role-lead">Lead</span> — Everything a User can do, plus: can see all team members' work, run the QC engine, perform QC reviews, and view workload across the team.<br><br>
+      <span class="role-badge role-admin">Admin</span> — Full access to everything: all teams, all views, engine settings, team/role switching, case resets, and system configuration.
+    </p>
+  </div>
+
+  <div class="team-grid">
+    <div class="team-card" style="border-left-color:#e07830">
+      <span class="team-tag" style="background:#e07830">Level 1</span>
+      <h3>Support Ninja (SN)</h3>
+      <p>The front line. Level 1 users pull cases from the Available queue and enter them into ABS.</p>
+      <ul>
+        <li>Pick up cases via "Assign Next Case"</li>
+        <li>Enter case data into ABS</li>
+        <li>Complete with case number, or route to Level 2</li>
+        <li>Can escalate to Level 2 OC</li>
+      </ul>
+    </div>
+
+    <div class="team-card" style="border-left-color:#6a5acd">
+      <span class="team-tag" style="background:#6a5acd">Level 2</span>
+      <h3>Level 2 C&B OC</h3>
+      <p>Handles escalated cases and routes to specialty teams. The command center for complex cases.</p>
+      <ul>
+        <li>Reviews escalated cases from Level 1</li>
+        <li>Routes to AOX, Removables, or Onboarding</li>
+        <li>Can complete cases directly</li>
+        <li>Sees and manages Needs Attention column</li>
+      </ul>
+    </div>
+
+    <div class="team-card" style="border-left-color:#4ABEEE">
+      <span class="team-tag" style="background:#4ABEEE">AOX</span>
+      <h3>AOX</h3>
+      <p>Specialty team for AOX-specific restorations. Cases routed here by Level 2.</p>
+      <ul>
+        <li>Sees only their team's queue</li>
+        <li>Complete or return to queue</li>
+        <li>Place on hold if needed</li>
+      </ul>
+    </div>
+
+    <div class="team-card" style="border-left-color:#be185d">
+      <span class="team-tag" style="background:#be185d">Removables</span>
+      <h3>Removables</h3>
+      <p>Specialty team for removable prosthetics. Same workflow pattern as AOX.</p>
+      <ul>
+        <li>Sees only their team's queue</li>
+        <li>Complete or return to queue</li>
+        <li>Place on hold if needed</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="team-card" style="border-left-color:#0891b2; margin-bottom: 24px">
+    <span class="team-tag" style="background:#0891b2">Onboarding</span>
+    <h3>Onboarding</h3>
+    <p>Handles cases from new or unrecognized accounts. When the engine can't match a doctor or office to an existing account, it auto-routes here. Completing an onboarding case requires entering the new account number.</p>
+  </div>
+
+  <div class="highlight">
+    <h4>How Teams See the App</h4>
+    <p>Users see a focused view tailored to their team: a kanban column of their team's pending cases on the left, and a detail panel for the active case on the right. Leads and Admins see the full Kanban board with all columns.</p>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn secondary" onclick="goTo(0)">&larr; Back</button>
+    <button class="nav-btn primary" onclick="goTo(2)">Next: PDF Ingestion &rarr;</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 2: PDF INGESTION -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="tour-section" id="section-2">
+  <div class="section-num">3</div>
+  <div class="section-title">PDF Ingestion</div>
+  <div class="section-intro">
+    Cases enter the system when RX prescription PDFs are scanned from dental offices. The app can ingest PDFs automatically or on demand.
+  </div>
+
+  <div class="flow-container">
+    <div class="flow-step">
+      <div class="flow-dot" style="background:var(--killian)">1</div>
+      <div class="flow-content">
+        <h4>PDFs Arrive in SharePoint</h4>
+        <p>Dental offices send prescriptions via scanning portals (3Shape, etc.). The PDF files land in a configured SharePoint/OneDrive folder.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot" style="background:var(--killian)">2</div>
+      <div class="flow-content">
+        <h4>Process Scans</h4>
+        <p>An admin clicks <strong>"Process Scans"</strong> on the Kanban board (or it runs on a schedule). This triggers the ingestion engine which reads each PDF and extracts: patient name, doctor name, office name, material, shade, teeth, tooth count, and other RX details.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot" style="background:var(--killian)">3</div>
+      <div class="flow-content">
+        <h4>Engine Triage</h4>
+        <p>The triage engine runs automatically on new cases. It looks up the doctor and office names against the Accounts table in Supabase. Based on the match quality, it sets flags and suggestions to help the data entry person.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot" style="background:var(--killian)">4</div>
+      <div class="flow-content">
+        <h4>Auto-Routing</h4>
+        <p>If the engine can't find a matching account (new doctor/office), it can auto-route the case to the <strong>Onboarding</strong> team. Otherwise, the case lands in the <strong>Available</strong> queue for Level 1.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="highlight">
+    <h4>What Gets Extracted from the PDF</h4>
+    <p>Patient first &amp; last name, doctor name, office/practice name, material type, shade, tooth numbers, tooth count, reference number, delivery date, and source portal. This extracted data is what gets compared against ABS during QC validation later.</p>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn secondary" onclick="goTo(1)">&larr; Back</button>
+    <button class="nav-btn primary" onclick="goTo(3)">Next: Level 1 Workflow &rarr;</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 3: LEVEL 1 WORKFLOW -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="tour-section" id="section-3">
+  <div class="section-num">4</div>
+  <div class="section-title">Level 1 Workflow</div>
+  <div class="section-intro">
+    Level 1 (Support Ninja) users are the front line of data entry. They pick cases from the Available queue, open the RX PDF, enter the data into ABS, then complete the case with the ABS case number.
+  </div>
+
+  <div class="flow-container">
+    <div class="flow-step">
+      <div class="flow-dot" style="background:#e07830">1</div>
+      <div class="flow-content">
+        <h4>Assign Work (FIFO)</h4>
+        <p>Click <strong>"Assign Work"</strong> to pull the next case. The system always assigns the <strong>oldest pending case</strong> in the queue (FIFO order). You cannot pick specific cases — this ensures fair distribution and prevents cherry-picking. SN staff are limited to <strong>one open case at a time</strong> per BU tab.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot" style="background:#e07830">2</div>
+      <div class="flow-content">
+        <h4>Review the RX</h4>
+        <p>The case detail panel shows all extracted data: patient name, doctor, office, material, shade, teeth, and any Aspen triage flags. Click <strong>"Open PDF"</strong> to view the original prescription on the network.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot" style="background:#e07830">3</div>
+      <div class="flow-content">
+        <h4>Enter into ABS</h4>
+        <p>Using the RX data, create the case in ABS (the production system). Enter all required fields: patient, doctor, account, material, teeth, etc.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot" style="background:#1a8a4a">4</div>
+      <div class="flow-content">
+        <h4>Complete the Case</h4>
+        <p>Click <strong>"Complete"</strong> and enter the ABS case number you just created. This triggers the QC engine to validate your entry against Supabase. The case moves to Pending QC.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-card">
+    <h3>Other Level 1 Actions</h3>
+    <p>
+      <strong>Escalate to OC Level II</strong> — If the case is complex or needs a more experienced team member, escalate it. The case moves to the Level 2 queue.<br><br>
+      <strong>Hold</strong> — If you need to pause (waiting for info, etc.), place the case on hold. It moves to the Hold column and you can resume later.<br><br>
+      <strong>Return to Queue</strong> — (If enabled by admin) Send the case back to Available so another team member can pick it up.
+    </p>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn secondary" onclick="goTo(2)">&larr; Back</button>
+    <button class="nav-btn primary" onclick="goTo(4)">Next: Level 2 & Routing &rarr;</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 4: LEVEL 2 & ROUTING -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="tour-section" id="section-4">
+  <div class="section-num">5</div>
+  <div class="section-title">Level 2 C&B OC</div>
+  <div class="section-intro">
+    Level 2 handles escalated cases and serves as the routing hub for specialty teams. L2 users have both workflow buttons (Return to Queue, Hold, Complete) and routing buttons (AOX, Removables, Onboard).
+  </div>
+
+  <div class="info-card">
+    <h3>The L2 Button Bar</h3>
+    <p>L2 users see two groups of buttons on their active case:</p>
+    <p style="margin-top:8px">
+      <strong>Workflow (left side):</strong> Return to Queue, Hold, Complete — standard case actions.<br>
+      <strong>Route (right side):</strong> AOX, Removables, Onboard — sends the case to a specialty team.
+    </p>
+  </div>
+
+  <div class="info-card">
+    <h3>When to Route</h3>
+    <p>
+      <strong>Route to AOX</strong> — The RX is for an AOX-specific restoration type.<br>
+      <strong>Route to Removables</strong> — The RX is for removable prosthetics (dentures, partials, etc.).<br>
+      <strong>Route to Onboarding</strong> — The doctor or office is new and needs to be set up as an account in ABS first.
+    </p>
+  </div>
+
+  <div class="highlight">
+    <h4>Needs Attention Column</h4>
+    <p>Level 2 also manages the <strong>Needs Attention</strong> column. Cases land here when the QC engine finds discrepancies between the RX data and ABS records. L2 users review the issues, fix or confirm them, and re-submit for QC validation.</p>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn secondary" onclick="goTo(3)">&larr; Back</button>
+    <button class="nav-btn primary" onclick="goTo(5)">Next: Specialty Teams &rarr;</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 5: SPECIALTY TEAMS -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="tour-section" id="section-5">
+  <div class="section-num">6</div>
+  <div class="section-title">Specialty Teams</div>
+  <div class="section-intro">
+    AOX, Removables, and Onboarding are specialty teams that handle specific case types. They share a common view pattern: a kanban queue on the left with a detail panel on the right.
+  </div>
+
+  <div class="info-card">
+    <h3>Specialty User View</h3>
+    <p>Each specialty user sees only their team's cases. The layout mirrors the Level 1 view: click "Assign Next Case" to pull from the queue, review the case details, and take action.</p>
+    <p style="margin-top:8px">Specialty teams have <strong>workflow buttons only</strong> (Return to Queue, Hold, Complete) — no routing buttons. If a case needs to go elsewhere, the lead or admin handles that.</p>
+  </div>
+
+  <div class="team-grid">
+    <div class="info-card">
+      <div class="label" style="color:#4ABEEE">AOX</div>
+      <h3>AOX Workflow</h3>
+      <p>AOX cases follow the same complete-with-case-number flow. Once completed, the case goes to Pending QC and the engine validates it against ABS just like any other case.</p>
+    </div>
+    <div class="info-card">
+      <div class="label" style="color:#be185d">Removables</div>
+      <h3>Removables Workflow</h3>
+      <p>Identical pattern to AOX. Complete with a case number, and the QC engine takes over from there.</p>
+    </div>
+  </div>
+
+  <div class="info-card">
+    <div class="label" style="color:#0891b2">Onboarding</div>
+    <h3>Onboarding Workflow</h3>
+    <p>Onboarding is special: when completing a case, you must enter the <strong>new account number</strong> you created in ABS for this doctor/office. This is how the system learns about new accounts. The engine may auto-route cases here when it can't find a matching account during triage.</p>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn secondary" onclick="goTo(4)">&larr; Back</button>
+    <button class="nav-btn primary" onclick="goTo(6)">Next: QC Engine &rarr;</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 6: QC ENGINE -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="tour-section" id="section-6">
+  <div class="section-num">7</div>
+  <div class="section-title">The QC Engine</div>
+  <div class="section-intro">
+    The QC engine is the automated quality gate. After a case is completed (submitted with a case number), the engine looks up that case number in ABS and compares every RX field against what's in the production system.
+  </div>
+
+  <div class="info-card">
+    <h3>What Gets Checked</h3>
+    <table class="check-table">
+      <thead><tr><th>Field</th><th>RX Source</th><th>ABS Source</th></tr></thead>
+      <tbody>
+        <tr><td>Patient First Name</td><td>Extracted from PDF</td><td>Cases table</td></tr>
+        <tr><td>Patient Last Name</td><td>Extracted from PDF</td><td>Cases table</td></tr>
+        <tr><td>Doctor Name</td><td>Extracted from PDF</td><td>Accounts table (First + Last Name)</td></tr>
+        <tr><td>Office / Practice</td><td>Extracted from PDF</td><td>Accounts table (Practice Name)</td></tr>
+        <tr><td>Material / Product</td><td>Extracted from PDF</td><td>Case Teeth table (Product)</td></tr>
+        <tr><td>Tooth Numbers</td><td>Extracted from PDF</td><td>Cases table + Case Teeth rows</td></tr>
+        <tr><td>Tooth Count</td><td>Extracted from PDF</td><td>Cases table</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="info-card">
+    <h3>How Matching Works</h3>
+    <p>The QC engine runs automatically via scheduled tasks — there's no manual "Run Engine" button. It uses intelligent matching behind the scenes: fuzzy name matching, material family detection, and tooth set comparison. When you confirm a discrepancy as "Non-Error," the engine <strong>learns that pairing globally</strong> and won't flag it again on future cases.</p>
+  </div>
+
+  <div class="highlight gold">
+    <h4>The 3-Strike Rule</h4>
+    <p>If the engine can't find the case number in ABS, it doesn't immediately fail. It retries up to 3 times (cases may not be in ABS yet). After 3 failed lookups, the case is flagged as QC Failed and moves to Needs Attention.</p>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn secondary" onclick="goTo(5)">&larr; Back</button>
+    <button class="nav-btn primary" onclick="goTo(7)">Next: Attention & Verified &rarr;</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 7: NEEDS ATTENTION & VERIFIED -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="tour-section" id="section-7">
+  <div class="section-num">8</div>
+  <div class="section-title">Needs Attention & Verified</div>
+  <div class="section-intro">
+    After QC runs, a case either passes and moves to Verified, or it has discrepancies and moves to Needs Attention. Here's how each outcome works.
+  </div>
+
+  <div class="flow-container">
+    <div class="flow-step">
+      <div class="flow-dot" style="background:var(--red)">!</div>
+      <div class="flow-content">
+        <h4>Needs Attention</h4>
+        <p>The QC engine found mismatches between RX and ABS data. The case shows a comparison table (RX vs ABS side by side) and lists each discrepancy. Each discrepancy has three options:</p>
+        <p style="margin-top:6px">
+          <strong>Confirmed Non-Error</strong> — The values are actually correct (e.g., different naming conventions). The engine learns this match for future cases.<br>
+          <strong>Fixed</strong> — You corrected the ABS entry. The case will be re-checked.<br>
+          <strong>Error</strong> — Still needs fixing. Can't re-submit until all errors are resolved.
+        </p>
+        <p style="margin-top:6px">After flagging all discrepancies, click <strong>"Re-submit to QC"</strong> to re-run validation.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot" style="background:var(--gold)">P</div>
+      <div class="flow-content">
+        <h4>Verified / Needs PAN</h4>
+        <p>The case passed QC but doesn't have a PAN number yet. The app automatically checks ABS for PANs <strong>every 30 seconds</strong> when anyone has the board open. Once a PAN appears in ABS, it's assigned automatically — no manual action needed.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot" style="background:#1a8a4a">&#10003;</div>
+      <div class="flow-content">
+        <h4>Verified / PAN Assigned</h4>
+        <p>The case is fully verified AND has a PAN number. This is the end state. The case stays visible based on the <strong>retention setting</strong> in Admin: either a fixed number of days, or <strong>"Same Work Day"</strong> mode where cases reset at 4am so only today's completions show on the board.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="highlight">
+    <h4>Copy QC Report</h4>
+    <p>On any case with QC results, click <strong>"Copy Report"</strong> to copy a formatted summary to your clipboard. You can paste this directly into Microsoft Teams to share discrepancy details with your team.</p>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn secondary" onclick="goTo(6)">&larr; Back</button>
+    <button class="nav-btn primary" onclick="goTo(8)">Next: Views & Filters &rarr;</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 8: VIEWS & FILTERS -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="tour-section" id="section-8">
+  <div class="section-num">9</div>
+  <div class="section-title">Views & Filters</div>
+  <div class="section-intro">
+    The app offers multiple ways to view cases, depending on whether you're checking overall workflow, individual workloads, or your own cases.
+  </div>
+
+  <div class="info-card">
+    <h3>Workflow View (Kanban Board)</h3>
+    <p>The default view. Shows all columns as a Kanban board. Each column represents a stage in the pipeline. Click any case card to open its full detail in a modal.</p>
+    <p style="margin-top:8px"><strong>My Cases toggle</strong> — Filter the board to show only cases assigned to you. Available on Level 1, Level 2, and Hold columns.</p>
+  </div>
+
+  <div class="info-card">
+    <h3>By Person View (Heatmap)</h3>
+    <p>A grid showing every team member as a row, with status columns across the top: Active, Hold, Pending QC, Attn, Verified, Needs PAN, plus Completed Today and Completed Yesterday. Staff are grouped by role (Support Ninja, OC, Onboarding). Click any cell to drill down to the case list.</p>
+  </div>
+
+  <div class="info-card">
+    <h3>By Status View</h3>
+    <p>A grid showing case counts by BU (C&B, AOX, Removables, Onboarding) across all workflow statuses. Includes pipeline columns — Pending QC, Waiting for PAN, PAN Verified — with <strong>Today and Yesterday sub-counts</strong> for tracking daily throughput. Click any cell to see the case list.</p>
+  </div>
+
+  <div class="info-card">
+    <h3>User-Focused Views</h3>
+    <p>When a regular user (not admin/lead) logs in, they see a <strong>focused view</strong> tailored to their team:</p>
+    <p style="margin-top:8px">
+      <strong>Level 1 users</strong> see: their active case detail, the Available queue summary, and their holds dropdown. Assignment is FIFO-only (oldest case first).<br><br>
+      <strong>Level 2 users</strong> see: a kanban of L2 pending cases on the left, active case detail on the right, with workflow + routing buttons.<br><br>
+      <strong>Specialty users</strong> (AOX, Removables, Onboarding) see: their team's queue on the left, active case detail on the right, with workflow-only buttons.
+    </p>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn secondary" onclick="goTo(7)">&larr; Back</button>
+    <button class="nav-btn primary" onclick="goTo(9)">Next: Admin Tools &rarr;</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 9: ADMIN TOOLS -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="tour-section" id="section-9">
+  <div class="section-num">10</div>
+  <div class="section-title">Admin Tools</div>
+  <div class="section-intro">
+    The Admin tab provides system-wide configuration and tools. Only users with the Admin role can access these settings.
+  </div>
+
+  <div class="info-card">
+    <h3>Engine & Workflow Settings</h3>
+    <p>
+      <strong>Auto-Escalate to L2</strong> — When ON, cases that can't be matched to an account automatically escalate to Level 2.<br><br>
+      <strong>Auto-Route to Onboarding</strong> — When ON, cases with no matching account get automatically routed to the Onboarding team.<br><br>
+      <strong>SN Return to Queue</strong> — When ON, Level 1 users can send their assigned case back to the Available queue.<br><br>
+      <strong>OC Max Open Cases</strong> — Maximum number of cases an OC/Level 2 member can have assigned at once (default: 5). Support Ninja is always limited to 1.<br><br>
+      <strong>Verified Retention</strong> — Choose <strong>"Days"</strong> to keep verified cases visible for a set number of days, or <strong>"Same Work Day"</strong> to reset at 4am so only today's completions show on the board. The By Status grid still tracks yesterday's PAN Verified count regardless.
+    </p>
+  </div>
+
+  <div class="info-card">
+    <h3>Folder Settings</h3>
+    <p>Configure the SharePoint/network paths where PDFs are stored, where completed PDFs go, and the post-QC checked folder. These paths are used by the Process Scans function.</p>
+  </div>
+
+  <div class="info-card">
+    <h3>Deep QC</h3>
+    <p>A batch validation tool that checks ALL cases with case numbers against the full ABS data set — Cases table, Case Teeth table, and Accounts table. Runs patient name, tooth numbers, tooth count, material, doctor, and office checks across every case at once.</p>
+  </div>
+
+  <div class="info-card">
+    <h3>View As (Team/Role Switcher)</h3>
+    <p>Admins can switch their view to see the app as any team/role combination would see it. Useful for testing views, training new team members, or troubleshooting what a specific user sees.</p>
+  </div>
+
+  <div class="highlight">
+    <h4>You're Ready</h4>
+    <p>That covers the full workflow — from PDF ingestion through data entry, QC validation, and verified status. The system is designed so each team member sees exactly what they need, the QC engine catches discrepancies automatically, and the match learning system gets smarter over time.</p>
+  </div>
+
+  <div class="nav-buttons">
+    <button class="nav-btn secondary" onclick="goTo(8)">&larr; Back</button>
+    <button class="nav-btn primary" onclick="goTo(0)">Back to Start</button>
+  </div>
+</div>
+
+</div><!-- /tour-body -->
+
+<script>
+let current = 0;
+const total = 10;
+
+function goTo(idx) {
+  document.querySelectorAll('.tour-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('section-' + idx).classList.add('active');
+  document.querySelectorAll('.tour-nav button').forEach((b, i) => {
+    b.classList.toggle('active', i === idx);
+  });
+  current = idx;
+  document.getElementById('progressFill').style.width = ((idx + 1) / total * 100) + '%';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
