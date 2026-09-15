@@ -1972,7 +1972,7 @@
 <div class="login-page" id="loginPage">
   <div class="login-card">
     <div class="login-logo">Data Entry Module</div>
-    <div class="app-version" style="margin-bottom:4px;color:var(--sk-gold)">v7.10.1</div>
+    <div class="app-version" style="margin-bottom:4px;color:var(--sk-gold)">v7.10.4</div>
     <div class="login-subtitle">ClearPath OS · Spectrum Killian</div>
     <button class="btn-microsoft" onclick="signIn()" id="btnSignIn">
       <svg width="20" height="20" viewBox="0 0 21 21" fill="none">
@@ -2052,7 +2052,7 @@
             <button class="cpx-zoom-btn" onclick="stepZoom(5)" title="Zoom in">+</button>
           </div>
         </div>
-        <div class="app-version">v7.10.1</div>
+        <div class="app-version">v7.10.4</div>
         <div class="user-info">
           <div class="user-name" id="headerUserName"></div>
           <div class="user-team" id="headerUserTeam"><span id="viewAsBadge" class="view-as-badge" style="display:none">Viewing As</span></div>
@@ -2444,6 +2444,30 @@
           </div>
         </div>
 
+        <!-- Engine Run Log -->
+        <div class="card" style="margin-top:16px">
+          <div class="card-header">
+            <div class="card-title">Engine Run Log</div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <select id="engineLogFilter" class="form-select" style="width:auto;font-size:11px;padding:3px 8px" onchange="loadEngineRunLog()">
+                <option value="">All Engines</option>
+                <option value="ingest">Ingest</option>
+                <option value="triage">Triage</option>
+                <option value="qc">QC</option>
+              </select>
+              <select id="engineLogStatusFilter" class="form-select" style="width:auto;font-size:11px;padding:3px 8px" onchange="loadEngineRunLog()">
+                <option value="">All Statuses</option>
+                <option value="success">Success</option>
+                <option value="error">Error</option>
+              </select>
+              <button class="btn btn-outline btn-sm" onclick="loadEngineRunLog()">Refresh</button>
+            </div>
+          </div>
+          <div style="padding:16px;max-height:500px;overflow-y:auto">
+            <div id="engineRunLogTable" class="text-sm text-muted">Loading engine logs...</div>
+          </div>
+        </div>
+
         <!-- Deep QC Settings -->
         <div class="card" style="margin-top:16px">
           <div class="card-header">
@@ -2489,9 +2513,19 @@
               </thead>
               <tbody>
                 <tr style="border-bottom:1px solid var(--border)">
-                  <td style="padding:8px;font-weight:700;color:var(--sk-killian)">v7.10.1</td>
+                  <td style="padding:8px;font-weight:700;color:var(--sk-killian)">v7.10.4</td>
                   <td style="padding:8px;white-space:nowrap">2026-09-11</td>
-                  <td style="padding:8px">Max active cases now driven by admin setting (default 1). L2 Available column no longer shows assigned cases — assigned cases move to Assigned column. Force-moved 45 remaining quality_review cases to validated.</td>
+                  <td style="padding:8px">Engine Run Log viewer added to Admin tab — shows last 100 engine runs with engine/status filters, duration, result summary, and error messages. Filterable by engine (Ingest, Triage, QC) and status (Success, Error).</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--border)">
+                  <td style="padding:8px;font-weight:700;color:var(--sk-killian)">v7.10.3</td>
+                  <td style="padding:8px;white-space:nowrap">2026-09-11</td>
+                  <td style="padding:8px">Drag-drop to Assigned now sets assigned_to (was missing — cases showed team but no person). Drag-drop enforces max active cases. Assigned column no longer forces team to Support Ninja — cases keep their current team. Cleaned up multi-assigned cases (Javier 4→1, Martha 3→1).</td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--border)">
+                  <td style="padding:8px;font-weight:700;color:var(--sk-killian)">v7.10.2</td>
+                  <td style="padding:8px;white-space:nowrap">2026-09-11</td>
+                  <td style="padding:8px">Max active cases now driven by admin setting (default 1). L2 Available column no longer shows assigned cases — assigned cases move to Assigned column. Drag-and-drop now respects QC bypass — drops to Pending QC go straight to Validated when QC is disabled. Force-moved 45+26 remaining quality_review cases to validated. Cleaned up multi-assigned cases.</td>
                 </tr>
                 <tr style="border-bottom:1px solid var(--border)">
                   <td style="padding:8px;font-weight:700;color:var(--sk-killian)">v7.10.0</td>
@@ -2885,9 +2919,9 @@ function getMaxActiveCases() {
 const DROP_COLUMN_MAP = {
   available:  { status: 'pending',        teamName: 'support_ninja', clearAssignee: true },
   hold:       { status: 'on_hold',        teamName: null,            clearAssignee: false },
-  level1:     { status: 'assigned',       teamName: 'support_ninja', clearAssignee: false },
+  level1:     { status: 'assigned',       teamName: null,            clearAssignee: false },
   level2:     { status: 'pending',        teamName: 'level_2_oc',    clearAssignee: true },
-  pendingqc:  { status: 'quality_review', teamName: null,            clearAssignee: false },
+  pendingqc:  { status: 'quality_review', teamName: null,            clearAssignee: true },
   verified:   { status: 'validated',      teamName: null,            clearAssignee: false },
   onboarding: { status: 'pending',        teamName: 'onboarding',   clearAssignee: true },
   aox:        { status: 'pending',        teamName: 'aox',          clearAssignee: true },
@@ -2901,9 +2935,9 @@ function getDropMap(buKey) {
   return {
     available: { status: 'pending', teamName: 'support_ninja', clearAssignee: true },
     hold: { status: 'on_hold', teamName: null, clearAssignee: false },
-    level1: { status: 'assigned', teamName: 'support_ninja', clearAssignee: false },
+    level1: { status: 'assigned', teamName: null, clearAssignee: false },
     level2: { status: 'pending', teamName: l2Team, clearAssignee: true },
-    pendingqc: { status: 'quality_review', teamName: null, clearAssignee: true },
+    pendingqc: { status: window._qcEngineEnabled ? 'quality_review' : 'validated', teamName: null, clearAssignee: true },
     verified_nopan: { status: 'validated', teamName: null, clearAssignee: false },
     verified_pan: { status: 'validated', teamName: null, clearAssignee: false },
     ob_open: { status: 'pending', teamName: 'onboarding', clearAssignee: true },
@@ -3455,6 +3489,7 @@ function switchView(viewId) {
     loadSettings();
     loadEngineToggles();
     loadRetentionDays();
+    loadEngineRunLog();
   }
 }
 
@@ -5728,7 +5763,7 @@ async function kanbanDrop(e) {
   }
 
   // Block drop into QC or Verified columns without a case number
-  if (dropRule.status === 'validated' || dropRule.status === 'quality_review') {
+  if (dropRule.status === 'validated' || dropRule.status === 'quality_review' || colKey === 'pendingqc') {
     const { data: caseData } = await sb.from('workflow_cases').select('case_number').eq('id', caseId).single();
     if (!caseData?.case_number) {
       const targetLabel = dropRule.status === 'validated' ? 'Verified' : 'Pending QC';
@@ -5772,10 +5807,18 @@ async function kanbanDrop(e) {
     updateFields.bu_tab = activeBUTab;
   }
 
-  // Set timestamps for specific transitions
+  // When dropping to an assigned-status column, assign to current user + enforce max
   if (dropRule.status === 'assigned') {
+    const maxCases = getMaxActiveCases();
+    const { data: activeCases } = await sb.from('workflow_cases')
+      .select('id').eq('assigned_to', currentUser.id).eq('status', 'assigned');
+    if (activeCases && activeCases.length >= maxCases) {
+      toast('You already have ' + activeCases.length + ' active case(s) — max is ' + maxCases + '. Complete or route it first.', 'error');
+      return;
+    }
+    updateFields.assigned_to = currentUser.id;
     updateFields.assigned_at = updateFields.updated_at;
-  } else if (dropRule.status === 'quality_review') {
+  } else if (dropRule.status === 'quality_review' || (colKey === 'pendingqc' && dropRule.status === 'validated')) {
     updateFields.completed_at = updateFields.updated_at;
   } else if (dropRule.status === 'validated') {
     updateFields.validated_at = updateFields.updated_at;
@@ -8276,6 +8319,70 @@ function updateToggleStyle(checkboxId, knobId, isOn) {
   const track = knob.parentElement.querySelector('span:first-of-type');
   if (track) track.style.background = isOn ? '#16a34a' : '#ccc';
   knob.style.transform = isOn ? 'translateX(22px)' : 'translateX(0)';
+}
+
+// ============================================================
+// ENGINE RUN LOG
+// ============================================================
+async function loadEngineRunLog() {
+  const container = document.getElementById('engineRunLogTable');
+  if (!container) return;
+  container.innerHTML = '<div class="text-sm text-muted">Loading...</div>';
+
+  const engineFilter = document.getElementById('engineLogFilter')?.value || '';
+  const statusFilter = document.getElementById('engineLogStatusFilter')?.value || '';
+
+  let query = sb.from('engine_run_log').select('*').order('started_at', { ascending: false }).limit(100);
+  if (engineFilter) query = query.eq('engine', engineFilter);
+  if (statusFilter) query = query.eq('status', statusFilter);
+
+  const { data, error } = await query;
+  if (error) { container.innerHTML = '<div class="text-sm" style="color:var(--danger)">Error loading logs: ' + esc(error.message) + '</div>'; return; }
+  if (!data || data.length === 0) { container.innerHTML = '<div class="text-sm text-muted">No engine runs found.</div>'; return; }
+
+  // Group by run_id for collapsible runs
+  const rows = data.map(r => {
+    const started = new Date(r.started_at);
+    const finished = new Date(r.finished_at);
+    const dur = ((finished - started) / 1000).toFixed(1);
+    const timeStr = started.toLocaleString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit', second:'2-digit', hour12:true });
+    const isErr = r.status === 'error';
+    const statusBadge = isErr
+      ? '<span style="color:#fff;background:#E0625A;padding:1px 8px;border-radius:10px;font-size:10px;font-weight:600">ERROR</span>'
+      : '<span style="color:#fff;background:#16a34a;padding:1px 8px;border-radius:10px;font-size:10px;font-weight:600">OK</span>';
+    const engineLabel = r.engine.charAt(0).toUpperCase() + r.engine.slice(1);
+    let resultStr = '';
+    if (r.result) {
+      const parts = [];
+      if (r.result.processed !== undefined) parts.push('processed: ' + r.result.processed);
+      if (r.result.verified !== undefined) parts.push('verified: ' + r.result.verified);
+      if (r.result.errors !== undefined && r.result.errors > 0) parts.push('errors: ' + r.result.errors);
+      if (r.result.issues !== undefined && r.result.issues > 0) parts.push('issues: ' + r.result.issues);
+      resultStr = parts.length > 0 ? parts.join(', ') : '—';
+    } else { resultStr = '—'; }
+    const errMsg = r.error_message ? '<div style="color:var(--danger);font-size:11px;margin-top:2px;word-break:break-all;max-width:500px">' + esc(r.error_message).substring(0, 200) + '</div>' : '';
+    return `<tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:6px 8px;white-space:nowrap;font-size:11px">${timeStr}</td>
+      <td style="padding:6px 8px;font-weight:600;font-size:12px">${engineLabel}</td>
+      <td style="padding:6px 8px">${statusBadge}</td>
+      <td style="padding:6px 8px;font-size:11px;font-family:monospace">${dur}s</td>
+      <td style="padding:6px 8px;font-size:11px">${resultStr}${errMsg}</td>
+      <td style="padding:6px 8px;font-size:10px;color:var(--text-muted);font-family:monospace">${r.run_id}</td>
+    </tr>`;
+  }).join('');
+
+  container.innerHTML = `<table style="width:100%;border-collapse:collapse;font-family:'Montserrat',sans-serif">
+    <thead><tr style="border-bottom:2px solid var(--border)">
+      <th style="text-align:left;padding:6px 8px;font-size:11px;white-space:nowrap">Time</th>
+      <th style="text-align:left;padding:6px 8px;font-size:11px">Engine</th>
+      <th style="text-align:left;padding:6px 8px;font-size:11px">Status</th>
+      <th style="text-align:left;padding:6px 8px;font-size:11px">Duration</th>
+      <th style="text-align:left;padding:6px 8px;font-size:11px">Result</th>
+      <th style="text-align:left;padding:6px 8px;font-size:11px">Run ID</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <div class="text-xs text-muted" style="margin-top:8px">Showing last ${data.length} entries</div>`;
 }
 
 // ============================================================
